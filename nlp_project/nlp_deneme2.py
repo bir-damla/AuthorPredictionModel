@@ -185,4 +185,30 @@ print(f"Accuracy: {accuracy}")
 print(f"Confusion Matrix:\n{conf_matrix}")
 print(f"Classification Report:\n{classification_rep}")
 
+def new_data(new_text):
+    """verilen yazarlardan birinin veri setinde bulunmayan bir köşe yazısını
+    tahmin etme işlemi"""
+    cleaned_text = dataCleaning(new_text.read())
+    word_tokens = wordTokenize(cleaned_text)
+    sent_tokens = sentTokenize(new_text.read())
+    lemmatized_tokens = lemmas(word_tokens)
+
+    new_tfidf_matrix = tfidf_vector.transform([cleaned_text]).toarray()
+    new_sparce_matrix = count_vectorizer.transform([cleaned_text]).toarray()
+    new_wtLenDist_matrix = wtDict_vector.transform(wtLenDist(word_tokens)).toarray()
+    new_wtLenDist_matrix = scaler.transform(new_wtLenDist_matrix)
+    new_stLenDist_matrix = stDict_vector.transform(stLenDist(sent_tokens)).toarray()
+    new_stLenDist_matrix = scaler.transform(new_stLenDist_matrix)
+    new_attribution = (
+        new_tfidf_matrix,
+        new_sparce_matrix,
+        new_wtLenDist_matrix,
+        new_stLenDist_matrix)
+    new_attribution = np.concatenate(new_attribution, axis=1)
+    predicted_author = logistic_model_bow.predict(new_attribution)
+    predicted_author_name = mapping[predicted_author[0]]
+    print(f"Tahmin Edilen Yazar: {predicted_author_name}")
+
+deneme = open("new_text.txt")
+text_model = new_data(deneme)
 
